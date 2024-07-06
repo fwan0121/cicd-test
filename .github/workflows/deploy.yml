@@ -1,0 +1,35 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                node-version: '20'
+            - name: Install dependencies
+              run: npm install
+            - name: Build
+              run: npm run build
+    
+    deploy-staging:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Deploy to Heroku Staging
+              uses: akhileshns/heroku-deploy@v3.13.15
+              with:
+                heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+                heroku_app_name: cicd-test
+                heroku_email: fwan0121@gmail.com
+                procfile: "web: node index.js"
